@@ -11,7 +11,7 @@ if ( ! defined('ABSPATH') ) {
 
 if ( ! class_exists( 'wp_ulike_stats' ) ) {
 
-	class wp_ulike_stats extends wp_ulike_widget{
+	class wp_ulike_stats extends wp_ulike_widget {
 
 		// Private variables
 		private $wpdb, $tables;

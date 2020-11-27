@@ -104,25 +104,27 @@ if( ! function_exists( 'wp_ulike_get_most_liked_posts' ) ){
 			);
 		}
 
-		$post__in = wp_ulike_get_popular_items_ids(array(
-			'type'     => $method,
-			'rel_type' => $post_type,
-			'status'   => $status,
-			'period'   => $period,
-			"offset"   => $offset,
-			"user_id"  => $user_id,
-			"limit"    => $numberposts
-		));
+		$post__in = wp_ulike_get_popular_items_ids(
+			array(
+				'type'     => $method,
+				'rel_type' => $post_type,
+				'status'   => $status,
+				'period'   => $period,
+				"offset"   => $offset,
+				"user_id"  => $user_id,
+				"limit"    => $numberposts
+			)
+		);
 
 		$args = array(
 			'post_type'      => $post_type,
 			'posts_per_page' => $numberposts
 		);
 
-		if( ! empty( $post__in ) ){
+		if ( ! empty( $post__in ) ) {
 			$args['post__in'] = $post__in;
-			$args['orderby'] = 'post__in';
-		} elseif( empty( $post__in ) && ! $is_noraml ) {
+			$args['orderby']  = 'post__in';
+		} elseif ( empty( $post__in ) && ! $is_noraml ) {
 			return false;
 		}
 
