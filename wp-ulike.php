@@ -79,17 +79,17 @@ if ( ! class_exists( 'WpUlikeInit' ) ) :
 		protected static $instance = null;
 
 
-	   /**
-	    * Initialize the plugin
-	    *
-	    * @since     3.1
-	    */
-	    private function __construct() {
+		/**
+		 * Initialize the plugin
+		 *
+		 * @since     3.1
+		*/
+		private function __construct() {
 			// init plugin
 			$this->init();
 
-	    	add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
-	    	add_action( 'wp_enqueue_scripts', array( $this, 'frontend_assets' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'frontend_assets' ) );
 
 			// Activate plugin when new blog is added
 			add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
@@ -97,32 +97,32 @@ if ( ! class_exists( 'WpUlikeInit' ) ) :
 
 			$prefix = is_network_admin() ? 'network_admin_' : '';
 			add_filter( "{$prefix}plugin_action_links",  array( $this, 'add_links' ), 10, 5 );
-	    }
+		}
 
-	   /**
-	    * Init the plugin when WordPress Initialises.
-	    *
-	    * @return void
-	    */
-	    public function admin_assets( $hook ){
-	    	new wp_ulike_admin_assets( $hook );
-	    }
+		/**
+		 * Init the plugin when WordPress Initialises.
+		 *
+		 * @return void
+		 */
+		public function admin_assets( $hook ){
+			new wp_ulike_admin_assets( $hook );
+		}
 
-	   /**
-	    * Init the plugin when WordPress Initialises.
-	    *
-	    * @return void
-	    */
-	    public function frontend_assets(){
+		/**
+		 * Init the plugin when WordPress Initialises.
+		 *
+		 * @return void
+		 */
+		public function frontend_assets(){
 			new wp_ulike_frontend_assets();
-	    }
+		}
 
-	   /**
-	    * Init the plugin when WordPress Initialises.
-	    *
-	    * @return void
-	    */
-	    public function init(){
+		/**
+		 * Init the plugin when WordPress Initialises.
+		 *
+		 * @return void
+		 */
+		public function init() {
 			// Check database upgrade if needed
 			if ( version_compare( get_option( 'wp_ulike_dbVersion', '1.6' ), WP_ULIKE_DB_VERSION, '<' ) ) {
 				$this->single_activate();
@@ -131,8 +131,8 @@ if ( ! class_exists( 'WpUlikeInit' ) ) :
 			// Define constant values
 			$this->define_constants();
 
-	    	// Include Files
-	    	$this->includes();
+			// Include Files
+			$this->includes();
 
 			// This hook is called once any activated plugins have been loaded.
 			add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
@@ -152,16 +152,16 @@ if ( ! class_exists( 'WpUlikeInit' ) ) :
 			$this->load_plugin_textdomain();
 		}
 
-	    /**
-	     * Add custom links too plugin info
-	     *
-	     * @since    3.1
-	     *
-	     * @return   Array
-	    */
-	    public function add_links( $actions, $plugin_file ) {
+		/**
+		 * Add custom links too plugin info
+		 *
+		 * @since    3.1
+		 *
+		 * @return   Array
+		*/
+		public function add_links( $actions, $plugin_file ) {
 
-	        if (  $plugin_file === WP_ULIKE_BASENAME ) {
+			if (  $plugin_file === WP_ULIKE_BASENAME ) {
 				$settings = array('settings'  => '<a href="admin.php?page=wp-ulike-settings">' . __('Settings', WP_ULIKE_SLUG) . '</a>');
 				$stats    = array('stats'     => '<a href="admin.php?page=wp-ulike-statistics">' . __('Statistics', WP_ULIKE_SLUG) . '</a>');
 				$about    = array('about'     => '<a href="admin.php?page=wp-ulike-about">' . __('About', WP_ULIKE_SLUG) . '</a>');
@@ -169,38 +169,38 @@ if ( ! class_exists( 'WpUlikeInit' ) ) :
 				$actions  = array_merge( $about, $actions );
 				$actions  = array_merge( $stats, $actions );
 				$actions  = array_merge( $settings, $actions );
-	        }
+			}
 
-	        return $actions;
-	    }
+			return $actions;
+		}
 
 
-	    /**
-	     * Auto-load classes on demand to reduce memory consumption
-	     *
-	     * @param mixed $class
-	     * @return void
-	     */
-	    public function autoload( $class ) {
+		/**
+		 * Auto-load classes on demand to reduce memory consumption
+		 *
+		 * @param mixed $class
+		 * @return void
+		 */
+		public function autoload( $class ) {
 
-	        $path  = null;
-	        $class = strtolower( $class );
-	        $file = 'class-' . str_replace( '_', '-', $class ) . '.php';
+			$path  = null;
+			$class = strtolower( $class );
+			$file = 'class-' . str_replace( '_', '-', $class ) . '.php';
 
-	        // the possible pathes containing classes
-	        $possible_pathes = array(
-	            WP_ULIKE_INC_DIR   . '/classes/',
-	            WP_ULIKE_ADMIN_DIR . '/classes/'
-	        );
+			// the possible pathes containing classes
+			$possible_pathes = array(
+				WP_ULIKE_INC_DIR   . '/classes/',
+				WP_ULIKE_ADMIN_DIR . '/classes/'
+			);
 
-	        foreach ( $possible_pathes as $path ) {
-	            if( is_readable( $path . $file ) ){
-	                include_once( $path . $file );
-	                return;
-	            }
-	        }
+			foreach ( $possible_pathes as $path ) {
+				if( is_readable( $path . $file ) ){
+					include_once( $path . $file );
+					return;
+				}
+			}
 
-	    }
+		}
 
 	    /**
 	     * Include Files

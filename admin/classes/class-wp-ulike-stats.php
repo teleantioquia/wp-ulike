@@ -267,7 +267,7 @@ if ( ! class_exists( 'wp_ulike_stats' ) ) {
 				wp_ulike_update_meta_data( 1, 'statistics', $cache_key, $counter_value );
 			}
 
-	        return  empty( $counter_value ) ? 0 : $counter_value;
+	    return  empty( $counter_value ) ? 0 : $counter_value;
 		}
 
 		/**
