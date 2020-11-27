@@ -64,6 +64,7 @@
   if (wp_ulike_admin.hook_address.indexOf("wp-ulike-statistics") !== -1) {
 
     // Get all tables data
+    // Extracted from wp_ulike_ajax_stats ajax action.
     window.wpUlikeAjaxDataset = $.fn.WpUlikeAjaxStats();
 
     if (window.wpUlikeAjaxDataset === null) {

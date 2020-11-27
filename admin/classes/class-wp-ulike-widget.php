@@ -48,17 +48,19 @@ if ( ! class_exists( 'wp_ulike_widget' ) ) {
 			);
 			// Parse args
 			$settings = wp_parse_args( $args, $defaults );
+			// TODO: Remove this extract() usage.
 			// Extract settings
-			extract($settings);
+			extract( $settings );
 
 			$posts = wp_ulike_get_most_liked_posts( $numberOf, '', 'post', $period );
+			// return '<li>' . $period . '</li>';
 
-			if( empty( $posts ) ){
+			if ( empty( $posts ) ) {
 				$period_info = is_array( $period ) ? implode( ' - ', $period ) : $period;
 				return sprintf( '<li>%s "%s" %s</li>', __( 'No results were found in', WP_ULIKE_SLUG ), $period_info, __( 'period', WP_ULIKE_SLUG ) );
 			}
 
-			foreach ($posts as $post) {
+			foreach ( $posts as $post ) {
 				// Check post title existence
 				if( empty( $post->post_title ) ){
 					continue;

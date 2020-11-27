@@ -89,12 +89,20 @@ if( ! function_exists( 'wp_ulike_get_most_liked_posts' ) ){
 	 * @return WP_Post[]|int[] Array of post objects or post IDs.
 	 */
 	function wp_ulike_get_most_liked_posts( $numberposts = 10, $post_type = '', $method = 'post', $period = 'all', $status = 'like', $is_noraml = false, $offset = 1, $user_id = '' ){
-		// Get post types
-		$post_type =  empty( $post_type ) ? get_post_types_by_support( array(
-			'title',
-			'editor',
-			'thumbnail'
-		) ) : $post_type;
+		// Get post types.
+
+		if ( empty( $post_type ) ) {
+			// Get the post types that support 'title' and 'editor'
+			// In the origin al code was required to support 'thumbnail'
+			// however I removed it since it's dummy to suppose that a post without
+			// 'thumbnail' won't have like button.
+			$post_type = get_post_types_by_support(
+				array(
+					'title',
+					'editor',
+				)
+			);
+		}
 
 		$post__in = wp_ulike_get_popular_items_ids(array(
 			'type'     => $method,
