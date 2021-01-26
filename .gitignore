@@ -12,3 +12,7 @@ _devDependencies/
 deploy\.sh
 
 .vscode/
+
+dist/
+
+admin/settings/assets/scss/

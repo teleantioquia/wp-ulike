@@ -1,4 +1,3 @@
-/* 'WordpressUlike' plugin : https://github.com/alimir/wp-ulike */
 (function ($, window, document, undefined) {
   "use strict";
 
@@ -7,13 +6,13 @@
     $window = $(window),
     $document = $(document),
     defaults = {
-      ID: 0 /*  Auto ID value by element type */,
-      nonce: 0 /*  Get nonce token */,
-      type:
-        "" /* Values : likeThis (Posts),likeThisComment, likeThisActivity, likeThisTopic */,
+      ID: 0,
+      nonce: 0,
+      type: "",
       append: '',
       appendTimeout: 2000,
       displayLikers: false,
+      likersTemplate: 'default',
       disablePophover: true,
       isTotal: false,
       factor: '',
@@ -30,6 +29,7 @@
       "ulike-append": "append",
       "ulike-is-total": "isTotal",
       "ulike-display-likers": "displayLikers",
+      "ulike-likers-style": "likersTemplate",
       "ulike-disable-pophover": "disablePophover",
       "ulike-append-timeout": "appendTimeout",
       "ulike-factor": "factor",
@@ -71,17 +71,6 @@
       this.buttonElement.click(this._initLike.bind(this));
       // Call likers box generator
       this.generalElement.one("mouseenter", this._updateLikers.bind(this));
-      // Fix PopHover Appearance
-      // if( !this.settings.disablePophover && this.settings.displayLikers ){
-      //   var self = this;
-      //   this.generalElement.hover(
-      //     function() {
-      //       self.$element.addClass( "wp_ulike_display_pophover" );
-      //     }, function() {
-      //       self.$element.removeClass( "wp_ulike_display_pophover" );
-      //     }
-      //   );
-      // }
     },
 
     /**
@@ -126,7 +115,7 @@
           type: this.settings.type,
           template: this.settings.template,
           displayLikers: this.settings.displayLikers,
-          disablePophover: this.settings.disablePophover
+          likersTemplate: this.settings.likersTemplate
         },
         function (response) {
           //remove progress class
@@ -136,8 +125,8 @@
             this._updateMarkup(response);
             // Append html data
             this._appendChild();
-          } else {
-            this._sendNotification("error", response.data);
+          } else if (response.data.hasToast) {
+            this._sendNotification("error", response.data.message);
           }
           // Re-enable button
           this.buttonElement.prop("disabled", false);
@@ -195,7 +184,9 @@
         this._updateButton(response.data.btnText, response.data.status);
       }
       // Display Notifications
-      this._sendNotification(response.data.messageType, response.data.message);
+      if (response.data.hasToast) {
+        this._sendNotification(response.data.messageType, response.data.message);
+      }
     },
 
     _updateGeneralClassNames: function (status) {
@@ -261,20 +252,20 @@
 
     __updateCounter: function (counterValue) {
       if (typeof counterValue !== "object") {
-        this.counterElement.text(counterValue);
+        this.counterElement.html(counterValue);
       } else {
         if (this.settings.isTotal && typeof counterValue.sub !== "undefined") {
-          this.counterElement.text(counterValue.sub);
+          this.counterElement.html(counterValue.sub);
         } else {
           if (this.settings.factor === 'down') {
-            this.counterElement.text(counterValue.down);
+            this.counterElement.html(counterValue.down);
             if (this.siblingElement.length) {
-              this.siblingElement.find(this.settings.counterSelector).text(counterValue.up);
+              this.siblingElement.find(this.settings.counterSelector).html(counterValue.up);
             }
           } else {
-            this.counterElement.text(counterValue.up);
+            this.counterElement.html(counterValue.up);
             if (this.siblingElement.length) {
-              this.siblingElement.find(this.settings.counterSelector).text(counterValue.down);
+              this.siblingElement.find(this.settings.counterSelector).html(counterValue.down);
             }
           }
         }
@@ -288,7 +279,13 @@
      */
     _updateLikers: function () {
       // Make a request to generate or refresh the likers box
-      if (this.settings.displayLikers && !this.likersElement.length) {
+      if (this.settings.displayLikers) {
+        // return on these conditions
+        if (this.settings.likersTemplate == 'popover' && this.$element.data('ulike-tooltip')) {
+          return;
+        } else if (this.settings.likersTemplate == 'default' && this.likersElement.length) {
+          return;
+        }
         // Add progress status class
         this.generalElement.addClass("wp_ulike_is_getting_likers_list");
         // Start ajax process
@@ -299,7 +296,7 @@
             nonce: this.settings.nonce,
             type: this.settings.type,
             displayLikers: this.settings.displayLikers,
-            disablePophover: this.settings.disablePophover
+            likersTemplate: this.settings.likersTemplate
           },
           function (response) {
             // Remove progress status class
@@ -317,18 +314,34 @@
      * Update likers markup
      */
     _updateLikersMarkup: function (data) {
-      // If the likers container is not exist, we've to add it.
-      if (!this.likersElement.length) {
-        this.likersElement = $("<div>", {
-          class: data.class
-        }).appendTo(this.$element);
-      }
-      // Modify likers box innerHTML
-      if (data.template) {
-        this.likersElement.show().html(data.template);
+
+      if (this.settings.likersTemplate == 'popover') {
+        this.likersElement = this.$element;
+        if (data.template) {
+          this.likersElement.WordpressUlikeTooltip({
+            id: this.settings.type.toLowerCase() + '-' + this.settings.ID,
+            title: data.template,
+            position: 'top',
+            child: this.settings.generalSelector,
+            theme: 'white',
+            size: 'tiny',
+            trigger: 'hover'
+          });
+        }
       } else {
-        this.likersElement.hide();
+        // If the likers container is not exist, we've to add it.
+        if (!this.likersElement.length) {
+          this.likersElement = $(data.template).appendTo(this.$element);
+        }
+        // Modify likers box innerHTML
+        if (data.template) {
+          this.likersElement.show().html(data.template);
+        } else {
+          this.likersElement.hide();
+        }
       }
+
+      $document.trigger("WordpressUlikeLikersMarkupUpdated", [this.likersElement, this.settings.likersTemplate, data.template]);
     },
 
     /**
@@ -407,10 +420,6 @@
      * Send notification by 'WordpressUlikeNotifications' plugin
      */
     _sendNotification: function (messageType, messageText) {
-      //Check notifications active mode
-      if (wp_ulike_params.notifications !== "1") {
-        return;
-      }
       // Display Notification
       $(document.body).WordpressUlikeNotifications({
         messageType: messageType,
